@@ -1,25 +1,34 @@
-import { useState, useEffect } from 'react';
-import Head from 'next/head'
-import AppLayout from '../components/AppLayout'
-import Button from '../components/Button'
-import { colors } from '../styles/theme'
-import { loginWithGitHub, onAuthStateChange } from '../firebase/client'
+import { useEffect } from "react"
+import Head from "next/head"
+import AppLayout from "../components/AppLayout"
+import Button from "../components/Button"
+import { colors } from "../styles/theme"
+import { loginWithGitHub } from "../firebase/client"
+import { useRouter } from "next/router"
+import useUser, { USER_STATES } from "../hooks/useUser"
 
 export default function Home() {
-  const [user, setUser] = useState(undefined);
+  const user = useUser()
+  const router = useRouter()
+
+  // useEffect(() => {
+  //   onAuthStateChange(setUser)
+  // }, [])
 
   useEffect(() => {
-    onAuthStateChange(setUser);
-  }, [])
+    user && router.replace("/home")
+  }, [user])
 
   const handleClick = () => {
-    loginWithGitHub().then(user => {
-      const { avatar, displayName, url } = user
-      setUser(user)
-      console.log("user em index", user)
-    }).catch(err => {
-      console.log(err)
-    })
+    loginWithGitHub()
+      // .then((user) => {
+      //   // const { avatar, displayName, url } = user
+      //   setUser(user)
+      //   console.log("user em index", user)
+      // })
+      .catch((err) => {
+        console.log(err)
+      })
   }
 
   return (
@@ -35,20 +44,20 @@ export default function Home() {
           <h1>TwittAM</h1>
           <h2>My first app with Next.JS</h2>
           <div>
-            {
-              user === null &&
-              <Button onClick={handleClick}
-              >
-                LogIn with GitHub
-              </Button>
-            }
-            {
-              user && user.avatar &&
+            {!user && <Button onClick={handleClick}>LogIn with GitHub</Button>}
+            {/* {user && user.avatar && (
               <div>
-                <img src={user.avatar} />
-                <strong>{user.displayName}</strong>
+                <Avatar
+                  alt={user.displayName}
+                  src={user.avatar}
+                  text={user.displayName}
+                  withText
+                />
               </div>
-            }
+            )} */}
+            {user === USER_STATES.NOT_KNOW && (
+              <img style={{ width: "350px" }} src="/spinner.gif" />
+            )}
           </div>
         </section>
       </AppLayout>
