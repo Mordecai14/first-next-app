@@ -1,13 +1,12 @@
 import { useEffect } from "react"
 import Head from "next/head"
-import AppLayout from "../components/AppLayout"
 import Button from "../components/Button"
 import { colors } from "../styles/theme"
 import { loginWithGitHub } from "../firebase/client"
 import { useRouter } from "next/router"
 import useUser, { USER_STATES } from "../hooks/useUser"
 
-export default function Home() {
+const Home = () => {
   const user = useUser()
   const router = useRouter()
 
@@ -38,14 +37,13 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <AppLayout>
-        <section>
-          <img src="/mordecai.png" alt="logo" />
-          <h1>TwittAM</h1>
-          <h2>My first app with Next.JS</h2>
-          <div>
-            {!user && <Button onClick={handleClick}>LogIn with GitHub</Button>}
-            {/* {user && user.avatar && (
+      <section>
+        <img src="/mordecai.png" alt="logo" />
+        <h1>TwittAM</h1>
+        <h2>My first app with Next.JS</h2>
+        <div>
+          {!user && <Button onClick={handleClick}>LogIn with GitHub</Button>}
+          {/* {user && user.avatar && (
               <div>
                 <Avatar
                   alt={user.displayName}
@@ -55,12 +53,11 @@ export default function Home() {
                 />
               </div>
             )} */}
-            {user === USER_STATES.NOT_KNOW && (
-              <img style={{ width: "350px" }} src="/spinner.gif" />
-            )}
-          </div>
-        </section>
-      </AppLayout>
+          {user === USER_STATES.NOT_KNOW && (
+            <img style={{ width: "350px" }} src="/spinner.gif" />
+          )}
+        </div>
+      </section>
 
       <style jsx>
         {`
@@ -91,3 +88,5 @@ export default function Home() {
     </>
   )
 }
+
+export default Home

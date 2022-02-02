@@ -6,8 +6,22 @@ import {
   signInWithPopup,
   GithubAuthProvider,
 } from "firebase/auth"
-import { getFirestore, collection, addDoc, getDocs } from "firebase/firestore"
-
+import {
+  getFirestore,
+  collection,
+  addDoc,
+  getDocs,
+  query,
+  orderBy,
+  limit,
+} from "firebase/firestore"
+import {
+  getStorage,
+  ref,
+  uploadBytes,
+  uploadBytesResumable,
+  getDownloadURL,
+} from "firebase/storage"
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
   apiKey: "AIzaSyCHYsCQ95J9CIOEzbLOtkhkSbEFhjhVOuo",
@@ -87,11 +101,12 @@ export const loginWithGitHub = () => {
   //     })
 }
 
-export const addTweet = async ({ avatar, content, userId, username }) => {
+export const addTweet = async ({ avatar, img, content, userId, username }) => {
   try {
     const docRef = await addDoc(collection(db, "tweets"), {
       avatar,
       content,
+      img,
       createdAt: new Date(),
       likesCount: 0,
       sharedcount: 0,
@@ -110,20 +125,84 @@ export const fetchLatestDevits = () => {
   // snapShot.forEach((doc) => {
   //   console.log(`${doc.id} => ${doc.data()}`)
   // })
-  return getDocs(collection(db, "tweets")).then((snapShot) =>
-    snapShot.docs.map((doc) => {
-      const data = doc.data()
-      const id = doc.id
-      const { createdAt } = data
+  return (
+    getDocs(collection(db, "tweets"))
+      // .orderBy("createdAt", "desc")
+      .then((snapShot) =>
+        snapShot.docs.map((doc) => {
+          const data = doc.data()
+          const id = doc.id
+          const { createdAt } = data
+          // const date = new Date(createdAt.seconds * 1000)
+          // const normalizedCreatedAt = new Intl.DateTimeFormat("es-MX").format(date)
 
-      // const date = new Date(createdAt.seconds * 1000)
-      // const normalizedCreatedAt = new Intl.DateTimeFormat("es-MX").format(date)
-
-      return {
-        ...data,
-        id,
-        createdAt: +createdAt.toDate(),
-      }
-    })
+          return {
+            ...data,
+            id,
+            createdAt: +createdAt.toDate(),
+          }
+        })
+      )
   )
 }
+
+const metadata = {
+  contentType: "image/jpg",
+}
+
+export const upLoadImage = (file) => {
+  const storage = getStorage()
+  const storageRef = ref(storage, `images/${file.name}`)
+  const uploadTask = uploadBytesResumable(storageRef, file, metadata)
+  uploadTask.on(
+    "state_changed",
+    (snapshot) => {
+      const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100
+      console.log("Upload is " + progress + "% done")
+      switch (snapshot.state) {
+        case "paused":
+          console.log("Upload is paused")
+          break
+        case "running":
+          console.log("Upload is running")
+          break
+      }
+    },
+    (error) => {
+      // A full list of error codes is available at
+      // https://firebase.google.com/docs/storage/web/handle-errors
+      console.log(error)
+      switch (error.code) {
+        case "storage/unauthorized":
+          // User doesn't have permission to access the object
+
+          break
+        case "storage/canceled":
+          // User canceled the upload
+          break
+
+        // ...
+
+        case "storage/unknown":
+          // Unknown error occurred, inspect error.serverResponse
+          break
+      }
+    },
+    () => {
+      //   // Upload completed successfully, now we can get the download URL
+      //   getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+      //     console.log("File available at", downloadURL)
+      //   })
+    }
+  )
+
+  return uploadTask
+}
+
+// export const downloadIMAGE = (uploadTask) => {
+//   // Upload completed successfully, now we can get the download URL
+//   getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+//     console.log("File available at", downloadURL)
+//     return downloadURL
+//   })
+// }

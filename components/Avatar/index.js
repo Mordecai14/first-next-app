@@ -1,4 +1,4 @@
-export default function Avatar({ alt, src, text, withText }) {
+const Avatar = ({ alt, src, text, withText }) => {
   return (
     <div>
       <img alt={alt} src={src} title={alt} />
@@ -19,3 +19,5 @@ export default function Avatar({ alt, src, text, withText }) {
     </div>
   )
 }
+
+export default Avatar

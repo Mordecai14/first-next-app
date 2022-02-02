@@ -1,6 +1,7 @@
+import App from "next/app"
 import styles, { globalStyles } from "./styles"
 
-export default function AppLayout({ children }) {
+const AppLayout = ({ children }) => {
   return (
     <>
       <div>
@@ -13,3 +14,5 @@ export default function AppLayout({ children }) {
     </>
   )
 }
+
+export default AppLayout

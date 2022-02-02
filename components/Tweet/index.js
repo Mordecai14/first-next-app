@@ -1,8 +1,11 @@
 import Avatar from "../Avatar"
 import useTimeAgo from "../../hooks/useTimeAgo"
+import useDateTimeFormat from "../../hooks/useDateTimeFormat"
 
-export default function Twit({ avatar, username, content, id, createdAt }) {
+const Twit = ({ avatar, username, content, id, img, createdAt }) => {
   const timeAgo = useTimeAgo(createdAt)
+  const createdAtFormated = useDateTimeFormat(createdAt)
+
   return (
     <>
       <article>
@@ -13,9 +16,10 @@ export default function Twit({ avatar, username, content, id, createdAt }) {
           <header>
             <strong>{username}</strong>
             <span> ~ </span>
-            <label>{timeAgo}</label>
+            <time title={createdAtFormated}>{timeAgo}</time>
           </header>
           <p>{content}</p>
+          {img && <img src={img} />}
         </section>
       </article>
       <style jsx>{`
@@ -24,12 +28,18 @@ export default function Twit({ avatar, username, content, id, createdAt }) {
           display: flex;
           padding: 10px 15px;
         }
+        img {
+          width: 100%;
+          height: auto;
+          border-radius: 10px;
+          margin-top: 10px;
+        }
         div {
           padding-right: 10px;
         }
-        label {
+        time {
           color: #555;
-          font-size: 14px;
+          font-size: 13px;
         }
         p {
           margin: 0;
@@ -38,3 +48,5 @@ export default function Twit({ avatar, username, content, id, createdAt }) {
     </>
   )
 }
+
+export default Twit
